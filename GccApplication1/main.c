@@ -55,19 +55,28 @@ void write_flash(uint32_t page, uint8_t *data, size_t size) {
 	boot_rww_enable();
 }
 
+void write_from_flash() {
+	uint8_t buf[1536] = {0};
+	
+	W25QXX_read_stream(0x00000000, buf, 1536);
+	
+	cli(); // always remember to disable interrupts when writing to flash
+	write_flash(START_ADDR, data, 1536);
+}
+
+// only for testing purposes
+void TEMP_write_to_flash() {
+		// temporary write to the flash
+		W25QXX_clear_A();
+		for (int i = 0; i < 1536; i++) {
+			W25QXX_write_app(&(data[i]), 1);
+		}
+		W25QXX_write_remainder();
+}
+
 int main(void)
 {
 	SPI_init();
-	//const char buffer[] = {'a', 'b', 'c', '\0'};
-	//sei();
-	//UART_init(UBBR);
-	//print(buffer);
-	
-	// temporary write to the flash
-	//W25QXX_write_app(data, 1536);
-	//W25QXX_write_remainder(0x00);
-	
-	// read first page
 	
 	DDRB = 0xFF;
 	for (int i = 0; i < 2; i++) {
@@ -75,19 +84,12 @@ int main(void)
 		_delay_ms(500);
 	}
 	
-	uint8_t buf[256] = {0x67};
+	TEMP_write_to_flash(); // remember to remove from final version
+	write_from_flash();
 	
-	W25QXX_read_stream(0x00000000, buf, 256);
-	
-	cli(); // always remember to disable interrupts when writing to flash
-	write_flash(START_ADDR, buf, 256);
-	
-	//asm("JMP 0x0");
-	
-	for (int i = 0; i < 10; i++) {
-		PORTB ^= (1 << PB7);
-		_delay_ms(500);
-	}
+	asm("JMP 0x0");
 
+
+	PORTB = 0xFF;
 	while (1) ; // should be unreachable
 }

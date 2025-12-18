@@ -20,6 +20,8 @@ void W25QXX_release_power_down();
 uint8_t W25QXX_read_status();
 void W25QXX_write_page(uint32_t addr, uint8_t *bytes, size_t len);
 void W25QXX_clear_chip();
+void W25QXX_clear_A();
+void W25QXX_clear_B();
 
 void W25QXX_read_stream(uint32_t addr, uint8_t *buf, size_t len);
 

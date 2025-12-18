@@ -12,6 +12,11 @@
 #include "uart.h"
 #include <avr/delay.h>
 
+// temp
+void print(char *a) {
+	;
+}
+
 void W25QXX_init() {
 	W25QXX_clear_chip();
 }
