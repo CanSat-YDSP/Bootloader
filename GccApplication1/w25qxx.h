@@ -12,6 +12,8 @@
 #include <avr/io.h>
 #include <stddef.h>
 
+extern uint32_t app_size;
+
 void W25QXX_readID(uint8_t* mfr, uint8_t* memtype, uint8_t* cap);
 uint8_t W25QXX_test();
 
@@ -25,8 +27,9 @@ void W25QXX_clear_B();
 
 void W25QXX_read_stream(uint32_t addr, uint8_t *buf, size_t len);
 
+void W25QXX_reset_app();
 void W25QXX_write_app(uint8_t *buf, size_t len);
-void W25QXX_write_remainder(); //rmb to add back uint8_t checksum
+uint8_t W25QXX_write_remainder(uint8_t checksum);
 void W25QXX_visualise_page(uint32_t addr, size_t len);
 
 #endif /* W25QXX_H_ */

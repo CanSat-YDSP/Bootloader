@@ -17,6 +17,8 @@
 
 extern volatile uint8_t buffer_index;
 
+uint8_t checksum_checker(uint8_t *buf, size_t len);
+
 void UART_init(uint16_t ubbr);
 void UART0_tx(uint8_t data);
 uint8_t UART0_rx();

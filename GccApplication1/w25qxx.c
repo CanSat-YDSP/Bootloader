@@ -12,11 +12,6 @@
 #include "uart.h"
 #include <avr/delay.h>
 
-// temp
-void print(char *a) {
-	;
-}
-
 void W25QXX_init() {
 	W25QXX_clear_chip();
 }
@@ -33,9 +28,6 @@ void W25QXX_readID(uint8_t* mfr, uint8_t* memtype, uint8_t* cap) {
 uint8_t W25QXX_test() {
 	uint8_t mfr, memtype, cap;
 	W25QXX_readID(&mfr, &memtype, &cap);
-	//char buffer[30];
-	//sprintf(buffer, "JEDEC ID: %x %x %x", mfr, memtype, cap);
-	//print(buffer);
 	
 	return (mfr == 0xEF);
 }
@@ -90,8 +82,6 @@ void W25QXX_write_enable() {
 
 // max 256 bytes!
 void W25QXX_write_page(uint32_t addr, uint8_t *bytes, size_t len) {
-	print("writing page!");
-	
 	W25QXX_write_enable();
 	
 	SPI_select(SS_W25Qxx);
@@ -184,12 +174,20 @@ uint32_t curr_addr = 0x000000;
 uint8_t curr_checksum = 0;
 uint8_t ready_for_reflash = 0;
 
+uint32_t app_size = 0;
+
+void W25QXX_reset_app() {
+	curr_index = 0;
+	curr_addr = 0x000000;
+	curr_checksum = 0;
+	ready_for_reflash = 0;
+}
+
 void W25QXX_write_app(uint8_t *buf, size_t len) {
 	
-	// curr_checksum ^= checksum_checker(buf, len);
+	 curr_checksum ^= checksum_checker(buf, len); // function from uart.h
 	
 	if (curr_index + len > 256) {
-		print("writing new page!");
 		uint8_t difference = 256 - curr_index;
 		
 		for (int i = 0; i < 256 - difference; i++) {
@@ -214,13 +212,15 @@ void W25QXX_write_app(uint8_t *buf, size_t len) {
 	}
 }
 
-// rememer to add uint8_t checksum
+// remember to add uint8_t checksum
 
-void W25QXX_write_remainder() {
+uint8_t W25QXX_write_remainder(uint8_t checksum) {
 	if (curr_index > 0) {
 		W25QXX_write_page(curr_addr, curr_buf, curr_index);
 	}
 	
+	app_size = curr_addr + curr_index;
+	 
 	curr_addr = 0x000000; // reset
 	curr_index = 0; // reset
 	
@@ -228,10 +228,15 @@ void W25QXX_write_remainder() {
 	sprintf(output, "Calculated Checksum: %02x\r\n", curr_checksum);
 	print(output);
 	
-	//if (curr_checksum == checksum) {
-		//ready_for_reflash = 1;
-	//}
-	//else {
-		//W25QXX_clear_A();	// clear out corrupted memory
-	//}
+	sprintf(output, "Received Checksum: %02x\r\n", checksum);
+	print(output);
+	
+	if (curr_checksum == checksum) {
+		ready_for_reflash = 1;
+	}
+	else {
+		W25QXX_clear_A();	// clear out corrupted memory
+	}
+	
+	return curr_checksum == checksum;
 }

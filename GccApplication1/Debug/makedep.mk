@@ -6,5 +6,7 @@ main.c
 
 spi.c
 
+uart.c
+
 w25qxx.c
 
