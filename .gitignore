@@ -1,2 +1,4 @@
 # Ignore Debug folder
 Debug/
+# Ignore Visual Studio folder
+.vs/
