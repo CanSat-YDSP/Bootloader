@@ -99,12 +99,12 @@ typedef enum {
 } UploadStatus;
 
 void send_telemetry(UploadStatus status) {
-	uint8_t tm[57] = {0};
+	uint8_t tm[58] = {0};
 	tm[0] = START_BYTE; // start character
-	tm[1] = 0x37;
-	tm[55] = status;
-	tm[56] = status; // checksum is just status because other fields 0x0
-	UART1_send_bytes(tm, 57);
+	tm[1] = 0x38;
+	tm[56] = status;
+	tm[57] = status; // checksum is just status because other fields 0x0
+	UART1_send_bytes(tm, 58);
 }
 
 int main(void)
